@@ -19,10 +19,9 @@ sudo systemctl daemon-reload
 sudo systemctl enable ${SERVICE_NAME}
 sudo systemctl restart ${SERVICE_NAME}
 
-echo "[4/5] Dodawanie wpisu do crontaba dla speedtest-cli..."
-CRON_LINE='0 * * * * echo "$(date +\%Y-\%m-\%d_\%H:\%M);$(speedtest-cli --simple | tr '\n' ';' )" >> /home/partner/monitoring/speed_log.txt'
-( crontab -u "${USER_NAME}" -l 2>/dev/null | grep -F "${CRON_LINE}" ) || \
-( crontab -u "${USER_NAME}" -l 2>/dev/null; echo "${CRON_LINE}" ) | crontab -u "${USER_NAME}" -
+echo "[4/5] (POMIŃ AUTOMATYCZNIE) Dodawanie wpisu do crontaba dla speedtest-cli..."
+echo "    Dodaj ręcznie w crontab (crontab -e) taki wpis dla użytkownika partner:"
+echo "    0 * * * * echo \"$(date +%Y-%m-%d_%H:%M);$(speedtest-cli --simple | tr '\n' ';' )\" >> /home/partner/monitoring/speed_log.txt"
 
 echo "[5/5] Gotowe. Status usługi:"
 systemctl status ${SERVICE_NAME} --no-pager || true
