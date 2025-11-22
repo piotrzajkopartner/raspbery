@@ -20,8 +20,8 @@ Na Raspberry Pi:
 
 ```bash
 cd /home/partner
-git clone https://github.com/TWOJ_USER/raspi-net-probe.git
-cd raspi-net-probe
+git clone https://github.com/piotrzajkopartner/raspbery.git
+cd raspbery
 chmod +x setup.sh
 ./setup.sh
 ```
@@ -61,7 +61,7 @@ Timestamp;Target;Packet_Loss_% ;Avg_Latency_ms;Status
 Na Raspberry Pi:
 
 ```bash
-cd /home/partner/raspi-net-probe
+cd /home/partner/raspbery
 python3 analyze_logs.py
 ```
 
@@ -70,7 +70,7 @@ python3 analyze_logs.py
 Jeżeli Raspberry Pi ma podłączony monitorek (HDMI lub mały ekran), możesz uruchomić prosty dashboard statusu:
 
 ```bash
-cd /home/partner/raspi-net-probe
+cd /home/partner/raspbery
 chmod +x display_status.py   # tylko raz, jeśli potrzeba
 python3 display_status.py
 ```

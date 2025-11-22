@@ -5,8 +5,8 @@ Wants=network-online.target
 
 [Service]
 User=partner
-WorkingDirectory=/home/partner/raspi-net-probe
-ExecStart=/usr/bin/python3 /home/partner/raspi-net-probe/monitor.py
+WorkingDirectory=/home/partner/raspbery
+ExecStart=/usr/bin/python3 /home/partner/raspbery/monitor.py
 Restart=always
 RestartSec=10
 
