@@ -1,0 +1,14 @@
+[Unit]
+Description=Internet Probe Monitor (Router + Internet)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/raspi-net-probe
+ExecStart=/usr/bin/python3 /home/pi/raspi-net-probe/monitor.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
