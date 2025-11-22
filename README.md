@@ -50,7 +50,7 @@ sudo systemctl restart net-probe.service
 Format CSV:
 
 ```text
-Timestamp;Target;Packet_Loss_%;;Avg_Latency_ms;Status
+Timestamp;Target;Packet_Loss_% ;Avg_Latency_ms;Status
 ```
 
 - `Target` – `ROUTER` lub `INTERNET`,
@@ -64,6 +64,31 @@ Na Raspberry Pi:
 cd /home/pi/raspi-net-probe
 python3 analyze_logs.py
 ```
+
+## Wyświetlanie statusu na monitorku (display_status.py)
+
+Jeżeli Raspberry Pi ma podłączony monitorek (HDMI lub mały ekran), możesz uruchomić prosty dashboard statusu:
+
+```bash
+cd /home/pi/raspi-net-probe
+chmod +x display_status.py   # tylko raz, jeśli potrzeba
+python3 display_status.py
+```
+
+Skrypt:
+
+- co kilka sekund odczytuje **ostatnie wpisy** z najnowszego pliku `network_log_YYYY-MM-DD.csv`,
+- pokazuje duży, kolorowy status dla:
+  - `ROUTER` – stan lokalnej sieci / połączenia z routerem,
+  - `INTERNET` – stan połączenia z Internetem.
+
+Kolory:
+
+- zielony – `OK` (brak problemów),
+- żółty – `WARN_LATENCY` / `WARN_LOSS` (opóźnienia lub umiarkowana utrata pakietów),
+- czerwony – `CRITICAL` / `DOWN` (duże problemy lub całkowity brak łącza).
+
+Zatrzymanie: `Ctrl+C`.
 
 Wyświetli podsumowanie statusów i przedziały czasowe problemów.
 

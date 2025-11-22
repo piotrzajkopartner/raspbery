@@ -39,7 +39,7 @@ def get_log_file_path(cfg: dict) -> str:
 def ensure_header(path: str):
     if not os.path.exists(path):
         with open(path, "w") as f:
-            f.write("Timestamp;Target;Packet_Loss_%;;Avg_Latency_ms;Status\n")
+            f.write("Timestamp;Target;Packet_Loss_% ;Avg_Latency_ms;Status\n")
 
 
 def run_fping(target: str, count: int, interval_ms: int):
