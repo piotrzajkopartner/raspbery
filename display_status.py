@@ -5,7 +5,7 @@ import csv
 import time
 import datetime
 
-LOG_DIR = "/home/pi/monitoring"
+LOG_DIR = "/home/partner/monitoring"
 PATTERN = "network_log_*.csv"
 REFRESH_SECONDS = 5
 

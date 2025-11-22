@@ -19,7 +19,7 @@ Prosta sonda sieciowa na Raspberry Pi:
 Na Raspberry Pi:
 
 ```bash
-cd /home/pi
+cd /home/partner
 git clone https://github.com/TWOJ_USER/raspi-net-probe.git
 cd raspi-net-probe
 chmod +x setup.sh
@@ -42,7 +42,7 @@ sudo systemctl restart net-probe.service
 
 ## Gdzie są logi?
 
-- katalog: `/home/pi/monitoring`
+- katalog: `/home/partner/monitoring`
 - pliki:
   - `network_log_YYYY-MM-DD.csv` – ping do routera i Internetu,
   - `speed_log.txt` – wyniki `speedtest-cli` (co godzinę).
@@ -61,7 +61,7 @@ Timestamp;Target;Packet_Loss_% ;Avg_Latency_ms;Status
 Na Raspberry Pi:
 
 ```bash
-cd /home/pi/raspi-net-probe
+cd /home/partner/raspi-net-probe
 python3 analyze_logs.py
 ```
 
@@ -70,7 +70,7 @@ python3 analyze_logs.py
 Jeżeli Raspberry Pi ma podłączony monitorek (HDMI lub mały ekran), możesz uruchomić prosty dashboard statusu:
 
 ```bash
-cd /home/pi/raspi-net-probe
+cd /home/partner/raspi-net-probe
 chmod +x display_status.py   # tylko raz, jeśli potrzeba
 python3 display_status.py
 ```

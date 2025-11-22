@@ -2,7 +2,7 @@
 set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-USER_NAME="pi"
+USER_NAME="partner"
 SERVICE_NAME="net-probe.service"
 
 echo "[1/5] Instalacja pakietów (fping, speedtest-cli)..."
@@ -20,7 +20,7 @@ sudo systemctl enable ${SERVICE_NAME}
 sudo systemctl restart ${SERVICE_NAME}
 
 echo "[4/5] Dodawanie wpisu do crontaba dla speedtest-cli..."
-CRON_LINE='0 * * * * echo "$(date +\%Y-\%m-\%d_\%H:\%M);$(speedtest-cli --simple | tr '\n' ';' )" >> /home/pi/monitoring/speed_log.txt'
+CRON_LINE='0 * * * * echo "$(date +\%Y-\%m-\%d_\%H:\%M);$(speedtest-cli --simple | tr '\n' ';' )" >> /home/partner/monitoring/speed_log.txt'
 ( crontab -u "${USER_NAME}" -l 2>/dev/null | grep -F "${CRON_LINE}" ) || \
 ( crontab -u "${USER_NAME}" -l 2>/dev/null; echo "${CRON_LINE}" ) | crontab -u "${USER_NAME}" -
 

@@ -4,7 +4,7 @@ import glob
 import csv
 from collections import Counter
 
-LOG_DIR = "/home/pi/monitoring"
+LOG_DIR = "/home/partner/monitoring"
 PATTERN = "network_log_*.csv"
 
 
