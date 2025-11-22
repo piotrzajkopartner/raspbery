@@ -93,7 +93,6 @@ def status_to_color(status: str) -> str:
 
 
 def format_big_label(label: str) -> str:
-    # Prosty "baner" tekstowy
     line = "=" * (len(label) + 4)
     return f"{line}\n| {label} |\n{line}"
 
