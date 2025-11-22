@@ -25,37 +25,61 @@ def find_latest_log_file():
     return max(files, key=os.path.getmtime)
 
 
-def read_last_speedtest(path):
-    """Zwraca ostatnią niepustą linię ze speed_log.txt lub None."""
+def read_last_speedtests(path, count=4):
+    """Zwraca listę ostatnich 'count' linii ze speed_log.txt (od najnowszej)."""
     if not os.path.exists(path):
-        return None
+        return []
     try:
-        last_line = None
+        lines = []
         with open(path, "r") as f:
             for line in f:
                 line = line.strip()
                 if line:
-                    last_line = line
-        return last_line
+                    lines.append(line)
+        return lines[-count:][::-1]  # od najnowszej
     except Exception:
-        return None
+        return []
 
 
-def read_last_statuses(path):
-    """Zwraca słownik: { 'ROUTER': (timestamp, status), 'INTERNET': (timestamp, status) }"""
-    statuses = {}
+def read_ping_history(path, max_entries=100):
+    """Zwraca historię pingów dla ROUTER/INTERNET.
+
+    Zwracany format:
+        {
+          'ROUTER': [(ts, loss:int, latency:float, status:str), ...],
+          'INTERNET': [...]
+        }
+    Liczymy maksymalnie max_entries najnowszych wpisów na target.
+    """
+    history = {"ROUTER": [], "INTERNET": []}
+    if not os.path.exists(path):
+        return history
     try:
         with open(path, newline="") as f:
             reader = csv.DictReader(f, delimiter=";")
             for row in reader:
                 target = row.get("Target", "")
+                if target not in history:
+                    continue
                 ts = row.get("Timestamp", "")
+                try:
+                    loss = int(float(row.get("Packet_Loss_% ", "0").replace(",", ".")))
+                except Exception:
+                    loss = 0
+                try:
+                    latency = float(row.get("Avg_Latency_ms", "0").replace(",", "."))
+                except Exception:
+                    latency = 0.0
                 status = row.get("Status", "")
-                if target in ("ROUTER", "INTERNET"):
-                    statuses[target] = (ts, status)
+                history[target].append((ts, loss, latency, status))
+
+        # ogranicz do max_entries od końca
+        for key in history:
+            if len(history[key]) > max_entries:
+                history[key] = history[key][-max_entries:]
+        return history
     except FileNotFoundError:
-        return {}
-    return statuses
+        return history
 
 
 def status_to_color(status: str) -> str:
@@ -91,30 +115,37 @@ def main():
             print(COLOR_RED + "Brak plików logów. Upewnij się, że monitor.py działa." + COLOR_RESET)
             time.sleep(REFRESH_SECONDS)
             continue
+        history = read_ping_history(latest, max_entries=100)
 
-        statuses = read_last_statuses(latest)
+        def print_block(name):
+            entries = history.get(name, [])
+            if not entries:
+                print(COLOR_RED + f"Brak danych o {name} w logu." + COLOR_RESET)
+                return
 
-        # Router
-        if "ROUTER" in statuses:
-            ts, st = statuses["ROUTER"]
-            color = status_to_color(st)
-            label = f"ROUTER: {st}"
+            # ostatni wpis
+            last_ts, last_loss, last_lat, last_status = entries[-1]
+            color = status_to_color(last_status)
+            label = f"{name}: {last_status}"
+
             print()
             print(color + format_big_label(label) + COLOR_RESET)
-            print(f"Ostatni pomiar: {ts}")
-        else:
-            print(COLOR_RED + "Brak danych o ROUTERZE w logu." + COLOR_RESET)
+            print(f"Ostatni pomiar: {last_ts}  loss={last_loss}%  avg={last_lat:.1f} ms")
 
-        # Internet
-        if "INTERNET" in statuses:
-            ts, st = statuses["INTERNET"]
-            color = status_to_color(st)
-            label = f"INTERNET: {st}"
-            print()
-            print(color + format_big_label(label) + COLOR_RESET)
-            print(f"Ostatni pomiar: {ts}")
-        else:
-            print(COLOR_RED + "Brak danych o INTERNECIE w logu." + COLOR_RESET)
+            # ostatnie 5 pomiarów
+            print("  Ostatnie 5 pomiarów (od najnowszego):")
+            for ts, loss, lat, st in reversed(entries[-5:]):
+                print(f"    {ts}  loss={loss:3d}%  avg={lat:6.1f} ms  {st}")
+
+            # średnie z ostatnich N (max 100)
+            n = len(entries)
+            avg_loss = sum(e[1] for e in entries) / n
+            avg_lat = sum(e[2] for e in entries) / n
+            print(f"  Średnie z ostatnich {n} pomiarów: loss={avg_loss:.1f}%  avg={avg_lat:.1f} ms")
+
+        # Router i Internet
+        print_block("ROUTER")
+        print_block("INTERNET")
 
         print()
         print("Legenda:")
@@ -125,12 +156,14 @@ def main():
         print("".ljust(60, "-"))
         print(f"Źródło pingów : {latest}")
 
-        # Ostatni speedtest
-        st_line = read_last_speedtest(SPEEDTEST_LOG)
-        if st_line:
-            print(f"Ostatni speedtest: {st_line}")
+        # Ostatnie speedtesty
+        st_lines = read_last_speedtests(SPEEDTEST_LOG, count=4)
+        if st_lines:
+            print("Ostatnie speedtesty (najnowsze u góry):")
+            for line in st_lines:
+                print(f"  {line}")
         else:
-            print("Ostatni speedtest: brak danych (sprawdź crontab i speed_log.txt)")
+            print("Speedtest: brak danych (sprawdź crontab i speed_log.txt)")
 
         print(f"Odświeżanie co {REFRESH_SECONDS} s (Ctrl+C, aby wyjść)")
 
