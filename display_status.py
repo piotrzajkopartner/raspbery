@@ -7,6 +7,7 @@ import datetime
 
 LOG_DIR = "/home/partner/monitoring"
 PATTERN = "network_log_*.csv"
+SPEEDTEST_LOG = "/home/partner/monitoring/speed_log.txt"
 REFRESH_SECONDS = 5
 
 # ANSI kolory
@@ -22,6 +23,22 @@ def find_latest_log_file():
     if not files:
         return None
     return max(files, key=os.path.getmtime)
+
+
+def read_last_speedtest(path):
+    """Zwraca ostatnią niepustą linię ze speed_log.txt lub None."""
+    if not os.path.exists(path):
+        return None
+    try:
+        last_line = None
+        with open(path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    last_line = line
+        return last_line
+    except Exception:
+        return None
 
 
 def read_last_statuses(path):
@@ -106,7 +123,15 @@ def main():
         print(COLOR_RED + "  CRITICAL/DOWN" + COLOR_RESET + "    - duże problemy lub całkowity brak łącza")
 
         print("".ljust(60, "-"))
-        print(f"Źródło: {latest}")
+        print(f"Źródło pingów : {latest}")
+
+        # Ostatni speedtest
+        st_line = read_last_speedtest(SPEEDTEST_LOG)
+        if st_line:
+            print(f"Ostatni speedtest: {st_line}")
+        else:
+            print("Ostatni speedtest: brak danych (sprawdź crontab i speed_log.txt)")
+
         print(f"Odświeżanie co {REFRESH_SECONDS} s (Ctrl+C, aby wyjść)")
 
         time.sleep(REFRESH_SECONDS)

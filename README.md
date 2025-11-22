@@ -45,7 +45,7 @@ sudo systemctl restart net-probe.service
 - katalog: `/home/partner/monitoring`
 - pliki:
   - `network_log_YYYY-MM-DD.csv` – ping do routera i Internetu,
-  - `speed_log.txt` – wyniki `speedtest-cli` (co godzinę).
+  - `speed_log.txt` – wyniki `speedtest-cli` (co 5 minut).
 
 Format CSV:
 
@@ -89,6 +89,20 @@ Kolory:
 - czerwony – `CRITICAL` / `DOWN` (duże problemy lub całkowity brak łącza).
 
 Zatrzymanie: `Ctrl+C`.
+
+## Speedtest co 5 minut (crontab)
+
+Aby `speedtest-cli` działał co 5 minut i dopisywał wyniki do `speed_log.txt`, dodaj wpis w cronie użytkownika `partner`:
+
+```bash
+crontab -e
+```
+
+Na końcu pliku dodaj linię:
+
+```cron
+*/5 * * * * echo "$(date +%Y-%m-%d_%H:%M);$(speedtest-cli --simple | tr '\n' ';' )" >> /home/partner/monitoring/speed_log.txt
+```
 
 Wyświetli podsumowanie statusów i przedziały czasowe problemów.
 
